@@ -97,7 +97,7 @@ val versionRestAssured = "5.1.1"
 val versionRocksDb = "7.5.3"
 val versionSlf4j = "1.7.36"
 val versionTestcontainers = "1.17.3"
-val versionWeld = "3.1.8.Final"
+val versionWeld = "5.0.1.Final"
 
 // Allow overriding the Iceberg version used by Nessie
 versionIceberg = System.getProperty("nessie.versionIceberg", versionIceberg)
