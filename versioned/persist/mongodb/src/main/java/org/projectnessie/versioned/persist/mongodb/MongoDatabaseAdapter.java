@@ -118,8 +118,9 @@ public class MongoDatabaseAdapter
     Objects.requireNonNull(client, "MongoDatabaseClient cannot be null");
     this.client = client;
 
-    this.repositoryId = config.getRepositoryId();
+    this.repositoryId = "my_dummy_id"; // config.getRepositoryId();
     Objects.requireNonNull(repositoryId, "Repository ID cannot be null");
+    System.out.println("repoId: " + repositoryId);
 
     globalPointerKey = repositoryId;
   }
@@ -128,8 +129,10 @@ public class MongoDatabaseAdapter
   protected void doEraseRepo() {
     client.getGlobalPointers().deleteMany(Filters.eq(globalPointerKey));
     client.getRepoDesc().deleteMany(Filters.eq(globalPointerKey));
-    Bson idPrefixFilter = Filters.eq(ID_REPO_PATH, repositoryId);
-    client.allWithCompositeId().forEach(coll -> coll.deleteMany(idPrefixFilter));
+    // filter composite key in a way that utilizes the default index - see https://stackoverflow.com/a/41604577
+    Bson repositoryFilter = Filters.eq(Filters.eq(ID_REPO_NAME, repositoryId));
+    System.out.println(repositoryFilter);
+    client.allWithCompositeId().forEach(coll -> coll.deleteMany(repositoryFilter));
   }
 
   private Document toId(Hash id) {

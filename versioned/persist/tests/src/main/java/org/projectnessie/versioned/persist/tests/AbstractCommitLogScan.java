@@ -138,6 +138,14 @@ public abstract class AbstractCommitLogScan {
 
     assertThat(refAndUnref.getUnreferencedHeads()).isEqualTo(deletedHeads);
     assertThat(refAndUnref.getReferencedHeads()).isEqualTo(liveHeads);
+
+    try (Stream<CommitLogEntry> stream = databaseAdapter.scanAllCommitLogEntries()) {
+      assertThat(stream.findAny()).isPresent();
+    }
+    databaseAdapter.eraseRepo();
+    try (Stream<CommitLogEntry> stream = databaseAdapter.scanAllCommitLogEntries()) {
+      assertThat(stream.findAny()).isNotPresent();
+    }
   }
 
   private void prepareReferences(
