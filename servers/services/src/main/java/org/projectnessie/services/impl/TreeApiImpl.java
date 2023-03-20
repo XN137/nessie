@@ -779,8 +779,11 @@ public class TreeApiImpl extends BaseApiImpl implements TreeService {
               continue;
             }
 
+            Content c = key.getContent();
             EntriesResponse.Entry entry =
-                EntriesResponse.Entry.entry(key.getKey(), key.getType(), key.getContentId());
+              c != null
+                ? EntriesResponse.Entry.entry(key.getKey(), key.getType(), c)
+                : EntriesResponse.Entry.entry(key.getKey(), key.getType(), key.getContentId());
 
             entry = namespaceDepthMapping(entry, depth);
 
@@ -820,10 +823,13 @@ public class TreeApiImpl extends BaseApiImpl implements TreeService {
 
   private static EntriesResponse.Entry namespaceDepthMapping(
       EntriesResponse.Entry entry, int depth) {
-    Content.Type type =
-        entry.getName().getElementCount() > depth ? Content.Type.NAMESPACE : entry.getType();
-    ContentKey key = ContentKey.of(entry.getName().getElements().subList(0, depth));
-    return EntriesResponse.Entry.entry(key, type);
+    List<String> nameElements = entry.getName().getElements();
+    if (nameElements.size() > depth) {
+      // truncate to parent namespace
+      ContentKey namespaceKey = ContentKey.of(nameElements.subList(0, depth));
+      return EntriesResponse.Entry.entry(namespaceKey, Content.Type.NAMESPACE);
+    }
+    return entry;
   }
 
   /**
